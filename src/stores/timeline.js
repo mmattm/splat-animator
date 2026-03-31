@@ -1,7 +1,16 @@
 import { create } from "zustand";
 import * as pc from "playcanvas";
 
-const defaultSplatParams = () => ({
+const defaultSplatParams = ({
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  scale = 1,
+} = {}) => ({
+  src: "",
+  position,
+  rotation,
+  scale,
+
   shaderStart: 0,
   shaderEnd: 1,
 
@@ -14,10 +23,6 @@ const defaultSplatParams = () => ({
 });
 
 export const useTimeline = create((set, get) => ({
-  /* =================================================
-     ⏱ GLOBAL TIMELINE
-  ================================================= */
-
   duration: 2.5,
   time: 0,
   progress: 0,
@@ -59,10 +64,6 @@ export const useTimeline = create((set, get) => ({
     });
   },
 
-  /* =================================================
-     🎥 CAMERA (global)
-  ================================================= */
-
   start: new pc.Vec3(0, 0, 10),
   end: new pc.Vec3(-0.9, 0.2, 1.5),
 
@@ -71,31 +72,31 @@ export const useTimeline = create((set, get) => ({
 
   setVec3: (key, v) => set({ [key]: new pc.Vec3(...v) }),
 
-  /* =================================================
-     ✨ SPLAT PARAMS (per layer)
-  ================================================= */
+  splatA: defaultSplatParams({
+    position: [0, 0, -25],
+    rotation: [180, 0, 0],
+    scale: 1,
+  }),
 
-  splatA: defaultSplatParams(),
-  splatB: defaultSplatParams(),
+  splatB: defaultSplatParams({
+    position: [0, 0, -20],
+    rotation: [180, 0, 0],
+    scale: 1,
+  }),
 
-  // helper: get params by id
   getSplat: (id) => (id === "B" ? get().splatB : get().splatA),
 
-  // set a param inside splatA/splatB
   setSplatValue: (id, key, value) =>
     set((state) => {
       const prop = id === "B" ? "splatB" : "splatA";
-      return { [prop]: { ...state[prop], [key]: value } };
+      return {
+        [prop]: {
+          ...state[prop],
+          [key]: value,
+        },
+      };
     }),
 
-  // optional convenience setters if you like
-  setSplatShaderStart: (id, v) => get().setSplatValue(id, "shaderStart", v),
-  setSplatShaderEnd: (id, v) => get().setSplatValue(id, "shaderEnd", v),
-
-  /* =================================================
-     CAMERA MODE
-  ================================================= */
-
-  cameraMode: "animation", // "animation" | "free"
+  cameraMode: "animation",
   setCameraMode: (m) => set({ cameraMode: m }),
 }));

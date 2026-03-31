@@ -4,8 +4,13 @@
   "targetStart": [1.3083854482368014, 1.1754276708473252, -21.749510660578235],
   "targetEnd": [7.282721016752919, -0.12262492010871173, -49.73883981419652],
   "duration": 8,
+
   "splatA": {
     "src": "A.ply",
+    "position": [0, 0, -25],
+    "rotation": [180, 0, 0],
+    "scale": 1.0,
+
     "shaderStart": 0.39,
     "shaderEnd": 0.88,
     "revealStart": 2.04,
@@ -17,6 +22,10 @@
 
   "splatB": {
     "src": "Cedre1.ply",
+    "position": [0, 0, -20],
+    "rotation": [180, 0, 0],
+    "scale": 1.0,
+
     "shaderStart": 0.18,
     "shaderEnd": 1,
     "revealStart": 10,

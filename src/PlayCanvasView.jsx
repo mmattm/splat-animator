@@ -2,8 +2,29 @@ import { Application } from "@playcanvas/react";
 import Splat from "./Splat";
 import CameraAnimator from "./cameraAnimator";
 import Panel from "./panel";
+import { useTimeline } from "./stores/timeline";
+
+const resolveSplatSrc = (src) => {
+  if (!src) return null;
+
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("/")
+  ) {
+    return src;
+  }
+
+  return `/splats/${src}`;
+};
 
 export default function PlayCanvasView() {
+  const srcA = useTimeline((s) => s.splatA.src);
+  const srcB = useTimeline((s) => s.splatB.src);
+
+  const resolvedSrcA = resolveSplatSrc(srcA);
+  const resolvedSrcB = resolveSplatSrc(srcB);
+
   return (
     <Application
       style={{ width: "100vw", height: "100vh" }}
@@ -15,21 +36,9 @@ export default function PlayCanvasView() {
       <CameraAnimator />
       <Panel />
 
-      {/* <Splat
-        id="A"
-        src="/splats/1.ply"
-        position={[0, 0, -25]}
-        rotation={[180, 0, 0]}
-        applyShader={true}
-      /> */}
+      {resolvedSrcA && <Splat splatId="A" src={resolvedSrcA} />}
 
-      <Splat
-        id="B"
-        src="/splats/Cedre1.ply"
-        position={[0, 0, -20]}
-        rotation={[180, 0, 0]}
-        applyShader={true} // ✅ splat “classique”
-      />
+      {resolvedSrcB && <Splat splatId="B" src={resolvedSrcB} />}
     </Application>
   );
 }

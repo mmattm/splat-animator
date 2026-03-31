@@ -6,17 +6,8 @@ import { OfflineRecorder } from "./lib/OfflineRecorder";
 
 export default function Panel() {
   const app = useApp();
-
-  /* =================================================
-     🧠 STORE (single source of truth)
-  ================================================= */
-
   const timeline = useTimeline();
   const syncingRef = useRef(false);
-
-  /* =================================================
-     🎬 RECORDER
-  ================================================= */
 
   const recorderRef = useRef(
     new OfflineRecorder({
@@ -30,64 +21,65 @@ export default function Panel() {
     await recorderRef.current.render(app, useTimeline.getState());
   };
 
-  /* =================================================
-     📦 PRESET APPLY
-  ================================================= */
-
-  const applyPreset = (p) => {
-    const t = useTimeline.getState();
-
-    // Camera
-    if (p.start) t.setVec3("start", p.start);
-    if (p.end) t.setVec3("end", p.end);
-    if (p.targetStart) t.setVec3("targetStart", p.targetStart);
-    if (p.targetEnd) t.setVec3("targetEnd", p.targetEnd);
-
-    // Global timeline
-    if (p.duration) t.setDuration(p.duration);
-
-    // ✅ New format: per-splat params
-    if (p.splatA) {
-      for (const [k, v] of Object.entries(p.splatA)) t.setSplatValue("A", k, v);
-    }
-    if (p.splatB) {
-      for (const [k, v] of Object.entries(p.splatB)) t.setSplatValue("B", k, v);
-    }
-
-    // ✅ Backward compatibility: old presets (single transition block)
-    if (p.shaderStart !== undefined)
-      t.setSplatValue("A", "shaderStart", p.shaderStart);
-    if (p.shaderEnd !== undefined)
-      t.setSplatValue("A", "shaderEnd", p.shaderEnd);
-    if (p.revealStart !== undefined)
-      t.setSplatValue("A", "revealStart", p.revealStart);
-    if (p.revealEnd !== undefined)
-      t.setSplatValue("A", "revealEnd", p.revealEnd);
-    if (p.noiseStart !== undefined)
-      t.setSplatValue("A", "noiseStart", p.noiseStart);
-    if (p.noiseEnd !== undefined) t.setSplatValue("A", "noiseEnd", p.noiseEnd);
-    if (p.noiseSpeed !== undefined)
-      t.setSplatValue("A", "noiseSpeed", p.noiseSpeed);
+  const getSplatName = (src, fallback = "none") => {
+    if (!src) return fallback;
+    return src.split("/").pop() || fallback;
   };
 
-  /* =================================================
-     💾 EXPORT JSON
-  ================================================= */
+  const applyPreset = (preset) => {
+    const t = useTimeline.getState();
+
+    if (preset.start) t.setVec3("start", preset.start);
+    if (preset.end) t.setVec3("end", preset.end);
+    if (preset.targetStart) t.setVec3("targetStart", preset.targetStart);
+    if (preset.targetEnd) t.setVec3("targetEnd", preset.targetEnd);
+
+    if (preset.duration !== undefined) t.setDuration(preset.duration);
+
+    if (preset.splatA) {
+      for (const [key, value] of Object.entries(preset.splatA)) {
+        t.setSplatValue("A", key, value);
+      }
+    }
+
+    if (preset.splatB) {
+      for (const [key, value] of Object.entries(preset.splatB)) {
+        t.setSplatValue("B", key, value);
+      }
+    }
+
+    // backward compatibility ancien format
+    if (preset.shaderStart !== undefined)
+      t.setSplatValue("A", "shaderStart", preset.shaderStart);
+
+    if (preset.shaderEnd !== undefined)
+      t.setSplatValue("A", "shaderEnd", preset.shaderEnd);
+
+    if (preset.revealStart !== undefined)
+      t.setSplatValue("A", "revealStart", preset.revealStart);
+
+    if (preset.revealEnd !== undefined)
+      t.setSplatValue("A", "revealEnd", preset.revealEnd);
+
+    if (preset.noiseStart !== undefined)
+      t.setSplatValue("A", "noiseStart", preset.noiseStart);
+
+    if (preset.noiseEnd !== undefined)
+      t.setSplatValue("A", "noiseEnd", preset.noiseEnd);
+
+    if (preset.noiseSpeed !== undefined)
+      t.setSplatValue("A", "noiseSpeed", preset.noiseSpeed);
+  };
 
   const exportPreset = () => {
     const s = useTimeline.getState();
 
     const preset = {
-      // Camera
       start: s.start.toArray(),
       end: s.end.toArray(),
       targetStart: s.targetStart.toArray(),
       targetEnd: s.targetEnd.toArray(),
-
-      // Global timeline
       duration: s.duration,
-
-      // ✅ Per-splat params
       splatA: s.splatA,
       splatB: s.splatB,
     };
@@ -97,8 +89,8 @@ export default function Panel() {
     });
 
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
+
     a.href = url;
     a.download = "timeline-preset.json";
     a.click();
@@ -106,31 +98,22 @@ export default function Panel() {
     URL.revokeObjectURL(url);
   };
 
-  /* =================================================
-     📥 IMPORT JSON
-  ================================================= */
-
   const importPreset = () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "application/json";
 
     input.onchange = async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
       if (!file) return;
 
-      applyPreset(JSON.parse(await file.text()));
-
-      // 🔥 sync leva after import
+      const json = JSON.parse(await file.text());
+      applyPreset(json);
       set(useTimeline.getState());
     };
 
     input.click();
   };
-
-  /* =================================================
-     🚀 AUTO LOAD DEFAULT PRESET
-  ================================================= */
 
   useEffect(() => {
     const load = async () => {
@@ -141,8 +124,6 @@ export default function Panel() {
 
         const json = await res.json();
         applyPreset(json);
-
-        // 🔥 sync leva with store
         set(useTimeline.getState());
       } catch {
         console.warn("No preset found");
@@ -153,16 +134,11 @@ export default function Panel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* =================================================
-     📍 CAPTURE CAMERA
-  ================================================= */
-
   const captureCamera = (type) => {
     const camComp = app.systems.camera.cameras[0];
     if (!camComp) return;
 
     const entity = camComp.entity;
-
     const pos = entity.getPosition().clone();
     const forward = entity.forward.clone().mulScalar(5);
     const target = pos.clone().add(forward);
@@ -179,13 +155,8 @@ export default function Panel() {
       t.setVec3("targetEnd", target.toArray());
     }
 
-    // 🔥 update leva sliders
     set(useTimeline.getState());
   };
-
-  /* =================================================
-     🎛 LEVA HELPERS
-  ================================================= */
 
   const splatFolder = (id, suffix = "") => {
     const p = id === "B" ? timeline.splatB : timeline.splatA;
@@ -193,6 +164,35 @@ export default function Panel() {
 
     return folder(
       {
+        [k("name")]: {
+          value: getSplatName(p.src),
+          editable: false,
+          label: "file",
+        },
+
+        [k("position")]: {
+          value: p.position,
+          label: "position",
+          step: 0.01,
+          onChange: (v) => timeline.setSplatValue(id, "position", v),
+        },
+
+        [k("rotation")]: {
+          value: p.rotation,
+          label: "rotation",
+          step: 0.1,
+          onChange: (v) => timeline.setSplatValue(id, "rotation", v),
+        },
+
+        [k("scale")]: {
+          value: typeof p.scale === "number" ? p.scale : 1,
+          label: "scale",
+          min: 0,
+          max: 10,
+          step: 0.01,
+          onChange: (v) => timeline.setSplatValue(id, "scale", v),
+        },
+
         [k("shaderStart")]: {
           value: p.shaderStart,
           min: 0,
@@ -253,10 +253,6 @@ export default function Panel() {
     );
   };
 
-  /* =================================================
-     🎛 LEVA UI
-  ================================================= */
-
   const [, set] = useControls(() => ({
     Controls: folder({
       progress: {
@@ -265,7 +261,9 @@ export default function Panel() {
         max: 1,
         step: 0.001,
         onChange: (v) => {
-          if (!syncingRef.current) timeline.setProgress(v);
+          if (!syncingRef.current) {
+            timeline.setProgress(v);
+          }
         },
       },
 
@@ -274,13 +272,13 @@ export default function Panel() {
         min: 0.5,
         max: 15,
         step: 0.1,
-        onChange: timeline.setDuration,
+        onChange: (v) => timeline.setDuration(v),
       },
 
       disableShaders: {
         value: timeline.disableShaders ?? false,
         label: "Disable Shaders",
-        onChange: timeline.setDisableShaders,
+        onChange: (v) => timeline.setDisableShaders(v),
       },
 
       play: button(() =>
@@ -307,11 +305,16 @@ export default function Panel() {
       mode: {
         options: { Animation: "animation", Free: "free" },
         value: timeline.cameraMode,
-        onChange: timeline.setCameraMode,
+        onChange: (v) => timeline.setCameraMode(v),
       },
 
-      setStart: button(() => captureCamera("start"), { label: "📍 Set Start" }),
-      setEnd: button(() => captureCamera("end"), { label: "📍 Set End" }),
+      setStart: button(() => captureCamera("start"), {
+        label: "📍 Set Start",
+      }),
+
+      setEnd: button(() => captureCamera("end"), {
+        label: "📍 Set End",
+      }),
 
       start: {
         value: timeline.start.toArray(),
@@ -334,14 +337,9 @@ export default function Panel() {
       },
     }),
 
-    // ✅ per splat transitions
     SplatA: splatFolder("A", ""),
     SplatB: splatFolder("B", "B"),
   }));
-
-  /* =================================================
-     🔄 SYNC STORE -> LEVA
-  ================================================= */
 
   useEffect(() => {
     syncingRef.current = true;
@@ -349,17 +347,18 @@ export default function Panel() {
     const s = useTimeline.getState();
 
     set({
-      // Controls
       progress: s.progress,
       duration: s.duration,
 
-      // Camera
       start: s.start.toArray(),
       end: s.end.toArray(),
       targetStart: s.targetStart.toArray(),
       targetEnd: s.targetEnd.toArray(),
 
-      // Splat A
+      name: getSplatName(s.splatA.src),
+      position: s.splatA.position,
+      rotation: s.splatA.rotation,
+      scale: typeof s.splatA.scale === "number" ? s.splatA.scale : 1,
       shaderStart: s.splatA.shaderStart,
       shaderEnd: s.splatA.shaderEnd,
       revealStart: s.splatA.revealStart,
@@ -368,7 +367,10 @@ export default function Panel() {
       noiseEnd: s.splatA.noiseEnd,
       noiseSpeed: s.splatA.noiseSpeed,
 
-      // ✅ Splat B (suffix B)
+      nameB: getSplatName(s.splatB.src),
+      positionB: s.splatB.position,
+      rotationB: s.splatB.rotation,
+      scaleB: typeof s.splatB.scale === "number" ? s.splatB.scale : 1,
       shaderStartB: s.splatB.shaderStart,
       shaderEndB: s.splatB.shaderEnd,
       revealStartB: s.splatB.revealStart,
@@ -376,10 +378,13 @@ export default function Panel() {
       noiseStartB: s.splatB.noiseStart,
       noiseEndB: s.splatB.noiseEnd,
       noiseSpeedB: s.splatB.noiseSpeed,
+
       disableShaders: s.disableShaders,
     });
 
-    queueMicrotask(() => (syncingRef.current = false));
+    queueMicrotask(() => {
+      syncingRef.current = false;
+    });
   }, [timeline, set]);
 
   return <Leva collapsed={false} />;
