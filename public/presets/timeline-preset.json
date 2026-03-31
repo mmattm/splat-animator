@@ -1,0 +1,28 @@
+{
+  "start": [0.6787236332893372, 1.6713958978652954, -16.81417465209961],
+  "end": [7.175290107727051, 0.581365168094635, -44.78981399536133],
+  "targetStart": [1.3083854482368014, 1.1754276708473252, -21.749510660578235],
+  "targetEnd": [7.282721016752919, -0.12262492010871173, -49.73883981419652],
+  "duration": 8,
+  "splatA": {
+    "src": "A.ply",
+    "shaderStart": 0.39,
+    "shaderEnd": 0.88,
+    "revealStart": 2.04,
+    "revealEnd": 11.89,
+    "noiseStart": 0,
+    "noiseEnd": 0,
+    "noiseSpeed": 0.08
+  },
+
+  "splatB": {
+    "src": "Cedre1.ply",
+    "shaderStart": 0.18,
+    "shaderEnd": 1,
+    "revealStart": 10,
+    "revealEnd": 4.72,
+    "noiseStart": 0,
+    "noiseEnd": 0.31,
+    "noiseSpeed": 0.04
+  }
+}

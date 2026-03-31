@@ -1,0 +1,43 @@
+/* =========================
+   Global reset
+========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* remove default spacing */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* full height app */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* base style */
+body {
+  background: #000;
+  color: #fff;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  /* 🔥 important pour viewer plein écran */
+  overflow: hidden;
+}
+
+/* avoid canvas inline gap */
+canvas {
+  display: block;
+}
