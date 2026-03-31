@@ -97,6 +97,22 @@ export const useTimeline = create((set, get) => ({
       };
     }),
 
+  resetSplat: (id) =>
+    set(() => ({
+      [id === "B" ? "splatB" : "splatA"]:
+        id === "B"
+          ? defaultSplatParams({
+              position: [0, 0, -20],
+              rotation: [180, 0, 0],
+              scale: 1,
+            })
+          : defaultSplatParams({
+              position: [0, 0, -25],
+              rotation: [180, 0, 0],
+              scale: 1,
+            }),
+    })),
+
   cameraMode: "animation",
   setCameraMode: (m) => set({ cameraMode: m }),
 }));

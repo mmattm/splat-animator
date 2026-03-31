@@ -25,6 +25,9 @@ export const applyPreset = (preset) => {
     for (const [key, value] of Object.entries(preset.splatB)) {
       t.setSplatValue("B", key, value);
     }
+  } else {
+    // reset B si absent du preset
+    t.setSplatValue("B", "src", "");
   }
 
   // backward compatibility ancien format
@@ -56,7 +59,6 @@ export const applyPreset = (preset) => {
     t.setSplatValue("A", "noiseSpeed", preset.noiseSpeed);
   }
 };
-
 export const exportPreset = () => {
   const s = useTimeline.getState();
 
