@@ -21,6 +21,7 @@ const resolveSplatSrc = (src) => {
 export default function PlayCanvasView() {
   const srcA = useTimeline((s) => s.splatA.src);
   const srcB = useTimeline((s) => s.splatB.src);
+  console.log(srcA);
 
   const resolvedSrcA = resolveSplatSrc(srcA);
   const resolvedSrcB = resolveSplatSrc(srcB);

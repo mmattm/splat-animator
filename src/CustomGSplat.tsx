@@ -5,7 +5,7 @@ import { useAppEvent, useApp } from "@playcanvas/react/hooks";
 import { useTimeline } from "./stores/timeline";
 import vertexShader from "./shaders/custom-splat.js";
 
-export function CustomGSplat({ asset, id = "A" }) {
+export function CustomGSplat({ asset, splatId = "A" }) {
   const ref = useRef(null);
   const app = useApp();
   const shaderInjected = useRef(false);
@@ -33,7 +33,7 @@ export function CustomGSplat({ asset, id = "A" }) {
       noiseStart,
       noiseEnd,
       noiseSpeed,
-    } = s.getSplat(id);
+    } = s.getSplat(splatId);
 
     const range = shaderEnd - shaderStart || 0.0001;
     let shaderProgress = (progress - shaderStart) / range;
@@ -46,7 +46,6 @@ export function CustomGSplat({ asset, id = "A" }) {
 
     const t = performance.now() * 0.001;
 
-    // ✅ per-material uniforms (A et B indépendants)
     mat.setParameter("uTime", t * noiseSpeed);
     mat.setParameter("uReveal", reveal);
     mat.setParameter("uNoiseAmount", noise);
