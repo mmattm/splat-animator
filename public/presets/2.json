@@ -18,7 +18,7 @@
     "noiseSpeed": 0.08
   },
   "splatB": {
-    "src": "1.ply",
+    "src": "E.ply",
     "position": [0, 0, -20],
     "rotation": [180, 0, 0],
     "scale": 1.16,
