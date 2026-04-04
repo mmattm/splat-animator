@@ -208,6 +208,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 1,
       step: 0.01,
+      label: "Anim Start",
       onChange: (v) => timeline.setSplatValue(id, "shaderStart", v),
     },
 
@@ -216,6 +217,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 1,
       step: 0.01,
+      label: "Anim End",
       onChange: (v) => timeline.setSplatValue(id, "shaderEnd", v),
     },
 
@@ -224,6 +226,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 10,
       step: 0.01,
+      label: "Reveal Start",
       onChange: (v) => timeline.setSplatValue(id, "revealStart", v),
     },
 
@@ -232,6 +235,8 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 25,
       step: 0.01,
+      label: "Reveal End",
+
       onChange: (v) => timeline.setSplatValue(id, "revealEnd", v),
     },
 
@@ -240,6 +245,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 2,
       step: 0.01,
+      label: "Noise Start",
       onChange: (v) => timeline.setSplatValue(id, "noiseStart", v),
     },
 
@@ -248,6 +254,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 2,
       step: 0.01,
+      label: "Noise End",
       onChange: (v) => timeline.setSplatValue(id, "noiseEnd", v),
     },
 
@@ -256,6 +263,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       min: 0,
       max: 1,
       step: 0.01,
+      label: "Noise velocity",
       onChange: (v) => timeline.setSplatValue(id, "noiseSpeed", v),
     },
   };
