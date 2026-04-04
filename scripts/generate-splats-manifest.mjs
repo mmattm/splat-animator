@@ -2,25 +2,43 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
+
 const splatsDir = path.join(root, "public", "splats");
-const outputFile = path.join(splatsDir, "manifest.json");
+const presetsDir = path.join(root, "public", "presets");
 
-function main() {
-  if (!fs.existsSync(splatsDir)) {
-    console.warn(`No splats directory found: ${splatsDir}`);
-    fs.mkdirSync(splatsDir, { recursive: true });
-  }
+const outputFile = path.join(root, "public", "manifest.json");
 
-  const files = fs
-    .readdirSync(splatsDir, { withFileTypes: true })
+function readFiles(dir, extension) {
+  if (!fs.existsSync(dir)) return [];
+
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
-    .filter((name) => name.toLowerCase().endsWith(".ply"))
+    .filter((name) => name.toLowerCase().endsWith(extension))
     .sort((a, b) => a.localeCompare(b));
+}
 
-  fs.writeFileSync(outputFile, JSON.stringify(files, null, 2), "utf8");
+function main() {
+  // ensure dirs exist
+  if (!fs.existsSync(splatsDir)) fs.mkdirSync(splatsDir, { recursive: true });
+  if (!fs.existsSync(presetsDir)) fs.mkdirSync(presetsDir, { recursive: true });
+
+  const splats = readFiles(splatsDir, ".ply");
+  const presets = readFiles(presetsDir, ".json");
+
+  const manifest = {
+    splats,
+    presets,
+  };
+
+  fs.writeFileSync(outputFile, JSON.stringify(manifest, null, 2), "utf8");
+
   console.log(
-    `Generated splat manifest with ${files.length} file(s): ${outputFile}`,
+    `Manifest generated:
+- ${splats.length} splats
+- ${presets.length} presets
+→ ${outputFile}`,
   );
 }
 

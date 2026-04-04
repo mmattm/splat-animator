@@ -1,0 +1,16 @@
+{
+  "splats": [
+    "1.ply",
+    "2.ply",
+    "A.ply",
+    "B.ply",
+    "C.ply",
+    "Cedre1.ply",
+    "E.ply",
+    "F.ply"
+  ],
+  "presets": [
+    "2.json",
+    "timeline-preset.json"
+  ]
+}

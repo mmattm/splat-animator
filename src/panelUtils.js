@@ -9,65 +9,88 @@ export const applyPreset = (preset) => {
   const t = useTimeline.getState();
 
   if (preset.start) t.setVec3("start", preset.start);
+  if (preset.intermediate) t.setVec3("intermediate", preset.intermediate);
   if (preset.end) t.setVec3("end", preset.end);
+
   if (preset.targetStart) t.setVec3("targetStart", preset.targetStart);
+  if (preset.targetIntermediate) {
+    t.setVec3("targetIntermediate", preset.targetIntermediate);
+  }
   if (preset.targetEnd) t.setVec3("targetEnd", preset.targetEnd);
 
   if (preset.duration !== undefined) t.setDuration(preset.duration);
 
-  if (preset.splatA) {
-    for (const [key, value] of Object.entries(preset.splatA)) {
-      t.setSplatValue("A", key, value);
+  if (preset.showDebug !== undefined) {
+    t.setShowDebug(preset.showDebug);
+  }
+
+  const nextA = preset.splatA ?? null;
+  const nextB = preset.splatB ?? null;
+
+  // force un vrai unload/remount des splats
+  t.setSplatValue("A", "src", "");
+  t.setSplatValue("B", "src", "");
+
+  requestAnimationFrame(() => {
+    if (nextA) {
+      for (const [key, value] of Object.entries(nextA)) {
+        t.setSplatValue("A", key, value);
+      }
     }
-  }
 
-  if (preset.splatB) {
-    for (const [key, value] of Object.entries(preset.splatB)) {
-      t.setSplatValue("B", key, value);
+    if (nextB) {
+      for (const [key, value] of Object.entries(nextB)) {
+        t.setSplatValue("B", key, value);
+      }
+    } else {
+      t.setSplatValue("B", "src", "");
     }
-  } else {
-    // reset B si absent du preset
-    t.setSplatValue("B", "src", "");
-  }
 
-  // backward compatibility ancien format
-  if (preset.shaderStart !== undefined) {
-    t.setSplatValue("A", "shaderStart", preset.shaderStart);
-  }
+    // backward compatibility ancien format
+    if (preset.shaderStart !== undefined) {
+      t.setSplatValue("A", "shaderStart", preset.shaderStart);
+    }
 
-  if (preset.shaderEnd !== undefined) {
-    t.setSplatValue("A", "shaderEnd", preset.shaderEnd);
-  }
+    if (preset.shaderEnd !== undefined) {
+      t.setSplatValue("A", "shaderEnd", preset.shaderEnd);
+    }
 
-  if (preset.revealStart !== undefined) {
-    t.setSplatValue("A", "revealStart", preset.revealStart);
-  }
+    if (preset.revealStart !== undefined) {
+      t.setSplatValue("A", "revealStart", preset.revealStart);
+    }
 
-  if (preset.revealEnd !== undefined) {
-    t.setSplatValue("A", "revealEnd", preset.revealEnd);
-  }
+    if (preset.revealEnd !== undefined) {
+      t.setSplatValue("A", "revealEnd", preset.revealEnd);
+    }
 
-  if (preset.noiseStart !== undefined) {
-    t.setSplatValue("A", "noiseStart", preset.noiseStart);
-  }
+    if (preset.noiseStart !== undefined) {
+      t.setSplatValue("A", "noiseStart", preset.noiseStart);
+    }
 
-  if (preset.noiseEnd !== undefined) {
-    t.setSplatValue("A", "noiseEnd", preset.noiseEnd);
-  }
+    if (preset.noiseEnd !== undefined) {
+      t.setSplatValue("A", "noiseEnd", preset.noiseEnd);
+    }
 
-  if (preset.noiseSpeed !== undefined) {
-    t.setSplatValue("A", "noiseSpeed", preset.noiseSpeed);
-  }
+    if (preset.noiseSpeed !== undefined) {
+      t.setSplatValue("A", "noiseSpeed", preset.noiseSpeed);
+    }
+  });
 };
 export const exportPreset = () => {
   const s = useTimeline.getState();
 
   const preset = {
     start: s.start.toArray(),
+    intermediate: s.intermediate.toArray(),
     end: s.end.toArray(),
+
     targetStart: s.targetStart.toArray(),
+    targetIntermediate: s.targetIntermediate.toArray(),
     targetEnd: s.targetEnd.toArray(),
+
     duration: s.duration,
+    showDebug: s.showDebug,
+
     splatA: s.splatA,
     splatB: s.splatB,
   };
@@ -131,6 +154,11 @@ export const captureCamera = (app, type, set) => {
   if (type === "start") {
     t.setVec3("start", pos.toArray());
     t.setVec3("targetStart", target.toArray());
+  }
+
+  if (type === "intermediate") {
+    t.setVec3("intermediate", pos.toArray());
+    t.setVec3("targetIntermediate", target.toArray());
   }
 
   if (type === "end") {
@@ -202,7 +230,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
     [k("revealEnd")]: {
       value: p.revealEnd,
       min: 0,
-      max: 50,
+      max: 25,
       step: 0.01,
       onChange: (v) => timeline.setSplatValue(id, "revealEnd", v),
     },

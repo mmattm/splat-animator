@@ -22,11 +22,19 @@ export default function Panel() {
       width: 3840,
       height: 2160,
       fps: 60,
+      format: "mp4",
     }),
   );
 
+  const renderLabel =
+    timeline.renderFormat === "png-sequence"
+      ? "🎬 Render PNG Sequence"
+      : "🎬 Render MP4";
+
   const renderOffline = async () => {
-    await recorderRef.current.render(app, useTimeline.getState());
+    await recorderRef.current.render(app, useTimeline.getState(), {
+      format: useTimeline.getState().renderFormat || "mp4",
+    });
   };
 
   const [, set] = useControls(() => ({
@@ -57,22 +65,35 @@ export default function Panel() {
         onChange: (v) => timeline.setDisableShaders(v),
       },
 
+      showDebug: {
+        value: timeline.showDebug ?? true,
+        label: "Show Debug",
+        onChange: (v) => timeline.setShowDebug(v),
+      },
+
+      renderFormat: {
+        label: "Render Mode",
+        options: {
+          MP4: "mp4",
+          "PNG Sequence": "png-sequence",
+        },
+        value: timeline.renderFormat ?? "mp4",
+        onChange: (v) => timeline.setRenderFormat?.(v),
+      },
+
       play: button(() =>
         timeline.playing ? timeline.pause() : timeline.play(),
       ),
 
-      render: button(renderOffline, {
-        label: "🎬 Render MP4",
+      [renderLabel]: button(renderOffline, {
         fullWidth: true,
       }),
 
-      export: button(exportPreset, {
-        label: "📤 Export JSON",
+      ["📤 Export JSON"]: button(exportPreset, {
         fullWidth: true,
       }),
 
-      load: button(() => importPreset(set), {
-        label: "📥 Load JSON",
+      ["📥 Load JSON"]: button(() => importPreset(set), {
         fullWidth: true,
       }),
     }),
@@ -84,17 +105,29 @@ export default function Panel() {
         onChange: (v) => timeline.setCameraMode(v),
       },
 
-      setStart: button(() => captureCamera(app, "start", set), {
+      ["Set Start"]: button(() => captureCamera(app, "start", set), {
         label: "📍 Set Start",
       }),
 
-      setEnd: button(() => captureCamera(app, "end", set), {
+      ["Set Intermediate"]: button(
+        () => captureCamera(app, "intermediate", set),
+        {
+          label: "📍 Set Intermediate",
+        },
+      ),
+
+      ["Set End"]: button(() => captureCamera(app, "end", set), {
         label: "📍 Set End",
       }),
 
       start: {
         value: timeline.start.toArray(),
         onChange: (v) => timeline.setVec3("start", v),
+      },
+
+      intermediate: {
+        value: timeline.intermediate.toArray(),
+        onChange: (v) => timeline.setVec3("intermediate", v),
       },
 
       end: {
@@ -105,6 +138,11 @@ export default function Panel() {
       targetStart: {
         value: timeline.targetStart.toArray(),
         onChange: (v) => timeline.setVec3("targetStart", v),
+      },
+
+      targetIntermediate: {
+        value: timeline.targetIntermediate.toArray(),
+        onChange: (v) => timeline.setVec3("targetIntermediate", v),
       },
 
       targetEnd: {
@@ -134,10 +172,15 @@ export default function Panel() {
     set({
       progress: s.progress,
       duration: s.duration,
+      showDebug: s.showDebug,
+      renderFormat: s.renderFormat ?? "mp4",
 
       start: s.start.toArray(),
+      intermediate: s.intermediate.toArray(),
       end: s.end.toArray(),
+
       targetStart: s.targetStart.toArray(),
+      targetIntermediate: s.targetIntermediate.toArray(),
       targetEnd: s.targetEnd.toArray(),
 
       name: getSplatName(s.splatA.src),

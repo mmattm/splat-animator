@@ -28,8 +28,14 @@ export const useTimeline = create((set, get) => ({
   progress: 0,
   playing: false,
 
+  renderFormat: "mp4",
+  setRenderFormat: (v) => set({ renderFormat: v }),
+
   disableShaders: false,
   setDisableShaders: (v) => set({ disableShaders: v }),
+
+  showDebug: true,
+  setShowDebug: (v) => set({ showDebug: v }),
 
   setDuration: (d) => set({ duration: d }),
 
@@ -65,9 +71,11 @@ export const useTimeline = create((set, get) => ({
   },
 
   start: new pc.Vec3(0, 0, 10),
+  intermediate: new pc.Vec3(0, 10, 0),
   end: new pc.Vec3(-0.9, 0.2, 1.5),
 
   targetStart: new pc.Vec3(0, 0, 0),
+  targetIntermediate: new pc.Vec3(-1, 0.5, -4),
   targetEnd: new pc.Vec3(-2, -1, -10),
 
   setVec3: (key, v) => set({ [key]: new pc.Vec3(...v) }),
