@@ -8,6 +8,10 @@ Install dependencies:
 
 `npm install`
 
+## Run
+
+`npm run dev`
+
 ## Splats
 
 Put your splat files in:
