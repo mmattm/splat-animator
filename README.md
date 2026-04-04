@@ -20,13 +20,7 @@ Put your splat files in:
 
 Example:
 
-`public/splats/asd.ply`
-
-Then use the filename in your preset or state, for example:
-
-`"src": "asd.ply"`
-
-Relative filenames are resolved automatically to `/splats/...`.
+`public/splats/splat.ply`
 
 ## Presets
 
@@ -41,6 +35,8 @@ Example:
 The default preset loaded on startup is:
 
 `public/presets/timeline-preset.json`
+
+Set your splat filenames inside `splatA.src` and `splatB.src`.
 
 ## Panel overview
 
