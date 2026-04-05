@@ -7,6 +7,8 @@ const defaultSplatParams = ({
   scale = 1,
 } = {}) => ({
   src: "",
+  visible: true,
+
   position,
   rotation,
   scale,

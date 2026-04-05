@@ -1,8 +1,25 @@
+import { button } from "leva";
 import { useTimeline } from "./stores/timeline";
 
 export const getSplatName = (src, fallback = "none") => {
   if (!src) return fallback;
   return src.split("/").pop() || fallback;
+};
+
+const pickSplatFileName = (timeline, id) => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".ply";
+
+  input.onchange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    timeline.setSplatValue(id, "src", file.name);
+    timeline.setSplatValue(id, "visible", true);
+  };
+
+  input.click();
 };
 
 export const applyPreset = (preset) => {
@@ -36,14 +53,26 @@ export const applyPreset = (preset) => {
       for (const [key, value] of Object.entries(nextA)) {
         t.setSplatValue("A", key, value);
       }
+
+      if (nextA.visible === undefined) {
+        t.setSplatValue("A", "visible", true);
+      }
+    } else {
+      t.setSplatValue("A", "src", "");
+      t.setSplatValue("A", "visible", false);
     }
 
     if (nextB) {
       for (const [key, value] of Object.entries(nextB)) {
         t.setSplatValue("B", key, value);
       }
+
+      if (nextB.visible === undefined) {
+        t.setSplatValue("B", "visible", true);
+      }
     } else {
       t.setSplatValue("B", "src", "");
+      t.setSplatValue("B", "visible", false);
     }
 
     // backward compatibility ancien format
@@ -76,6 +105,7 @@ export const applyPreset = (preset) => {
     }
   });
 };
+
 export const exportPreset = () => {
   const s = useTimeline.getState();
 
@@ -99,11 +129,21 @@ export const exportPreset = () => {
     type: "application/json",
   });
 
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+
+  const timestamp =
+    [now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate())].join("-") +
+    "_" +
+    [pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())].join(
+      "-",
+    );
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
 
   a.href = url;
-  a.download = "timeline-preset.json";
+  a.download = `timeline-preset-${timestamp}.json`;
   a.click();
 
   URL.revokeObjectURL(url);
@@ -180,6 +220,16 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
       label: "file",
     },
 
+    [k("upload")]: button(() => pickSplatFileName(timeline, id), {
+      label: "Upload",
+    }),
+
+    [k("visible")]: {
+      value: p.visible ?? true,
+      label: "Visible",
+      onChange: (v) => timeline.setSplatValue(id, "visible", v),
+    },
+
     [k("position")]: {
       value: p.position,
       label: "position",
@@ -224,7 +274,7 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
     [k("revealStart")]: {
       value: p.revealStart,
       min: 0,
-      max: 10,
+      max: 45,
       step: 0.01,
       label: "Reveal Start",
       onChange: (v) => timeline.setSplatValue(id, "revealStart", v),
@@ -233,10 +283,9 @@ export const createSplatFolder = (timeline, id, suffix = "") => {
     [k("revealEnd")]: {
       value: p.revealEnd,
       min: 0,
-      max: 25,
+      max: 45,
       step: 0.01,
       label: "Reveal End",
-
       onChange: (v) => timeline.setSplatValue(id, "revealEnd", v),
     },
 

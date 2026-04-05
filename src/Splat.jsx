@@ -10,6 +10,9 @@ export default function Splat({ splatId = "A", src }) {
   const entityRef = useRef(null);
 
   const disableShaders = useTimeline((s) => s.disableShaders);
+  const visible = useTimeline((s) =>
+    splatId === "B" ? s.splatB.visible : s.splatA.visible,
+  );
 
   useAppEvent("update", () => {
     const splat = useTimeline.getState().getSplat(splatId);
@@ -24,7 +27,7 @@ export default function Splat({ splatId = "A", src }) {
     e.setLocalScale(sc, sc, sc);
   });
 
-  if (!asset) return null;
+  if (!asset || !visible) return null;
 
   return (
     <Entity ref={entityRef}>

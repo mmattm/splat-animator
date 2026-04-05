@@ -1,6 +1,6 @@
 # splat-animator
 
-Simple PlayCanvas splat animation tool with a Leva control panel.
+Simple PlayCanvas splat animation tool.
 
 ## Setup
 
@@ -18,19 +18,13 @@ Put your splat files in:
 
 `public/splats/`
 
-Example:
-
-`public/splats/splat.ply`
+The **Upload** button only sets the filename and loads a splat that is already available in the `public/splats/` folder.
 
 ## Presets
 
 Put your preset files in:
 
 `public/presets/`
-
-Example:
-
-`public/presets/example.json`
 
 The default preset loaded on startup is:
 
@@ -39,8 +33,6 @@ The default preset loaded on startup is:
 Set your splat filenames inside `splatA.src` and `splatB.src`.
 
 ## Panel overview
-
-The panel is built with **Leva** and lets you control:
 
 - timeline progress
 - animation duration
@@ -85,13 +77,6 @@ These values define the animated camera path and look targets.
 
 ### Splat folders
 
-There are two splat folders:
-
-- **SplatA**
-- **SplatB**
-
-Each splat includes:
-
 - **file**: current splat filename
 - **position**: splat position
 - **rotation**: splat rotation
@@ -104,13 +89,22 @@ Each splat includes:
 - **Noise End**: noise amount at end
 - **Noise velocity**: speed of the noise animation
 
-## Typical workflow
+> ⚠️ **Warning:** `Reveal Start` and `Reveal End` are highly dependent on the specific splat.
+>
+> Some splats become fully revealed at very low values, while others need a much larger range.
+> Always test and adjust these values for each splat individually.
+
+## How To
 
 1. Put `.ply` splat files in `public/splats/`
-2. Put preset files in `public/presets/`
-3. Move the camera in free mode
-4. Capture start, intermediate, and end camera positions
+2. Switch the camera to **Free** mode
+3. Move the camera to the desired framing for each point
+4. Click **Set Start**, **Set Intermediate**, and **Set End** to capture the camera positions for each stage
 5. Adjust timeline duration and progress
 6. Tune SplatA and SplatB transform and animation values
-7. Export the setup as JSON
-8. Render as MP4 or PNG sequence
+7. Hide debug elements before rendering
+8. Export the setup as JSON
+9. Render as MP4 or PNG sequence
+
+> ⚠️ **Warning:** PNG sequence export downloads each PNG frame individually in the browser.
+> There is currently no automatic ZIP packaging, so this can trigger many separate downloads.

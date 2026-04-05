@@ -17,6 +17,32 @@ export default function Panel() {
   const timeline = useTimeline();
   const syncingRef = useRef(false);
 
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.code !== "Space") return;
+
+      const tag = document.activeElement?.tagName;
+      const isTyping =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        document.activeElement?.isContentEditable;
+
+      if (isTyping) return;
+
+      e.preventDefault();
+
+      const t = useTimeline.getState();
+      if (t.playing) {
+        t.pause();
+      } else {
+        t.play();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const recorderRef = useRef(
     new OfflineRecorder({
       width: 3840,
@@ -29,7 +55,9 @@ export default function Panel() {
   const renderLabel =
     timeline.renderFormat === "png-sequence"
       ? "🎬 Render PNG Sequence"
-      : "🎬 Render MP4";
+      : "🎬 Render";
+
+  const playLabel = timeline.playing ? "⏸ Pause" : "▶ Play";
 
   const renderOffline = async () => {
     await recorderRef.current.render(app, useTimeline.getState(), {
@@ -81,7 +109,7 @@ export default function Panel() {
         onChange: (v) => timeline.setRenderFormat?.(v),
       },
 
-      play: button(() =>
+      [playLabel]: button(() =>
         timeline.playing ? timeline.pause() : timeline.play(),
       ),
 
